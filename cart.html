@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="index.css" />
+  <style>
+    .fade-in {
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    #order-confirmation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 80vh;
+      font-weight: bold;
+      font-size: 1.4em;
+      color: #155724;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 8px;
+      margin: auto;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      text-align: center;
+    }
+
+    .offline-msg {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      padding: 40px;
+      font-size: 1.3em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/images/logo.png" alt="Logo" />
+    <div>
+      <h1>Mahajan Kariyana Store</h1>
+      <p>Your Local Grocery Partner</p>
+    </div>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="product.html">Products</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="cart.html">Cart</a>
+  </nav>
+
+  <div class="container cart-box" id="cart-container"></div>
+
+  <div style="text-align: center; margin: 20px;">
+    <button id="buy-now-btn" onclick="placeOrder()">Buy Now</button>
+  </div>
+
+  <div id="order-confirmation" style="display:none;"></div>
+
+  <footer>
+    <p>&copy; 2025 Mahajan Kariyana Store. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const cartContainer = document.getElementById("cart-container");
+    const orderConfirmation = document.getElementById("order-confirmation");
+    const buyNowBtn = document.getElementById("buy-now-btn");
+
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hour < 9 || hour >= 21) {
+      cartContainer.innerHTML = `<p class="offline-msg">Sorry, the store is offline.<br>Try again between 9 AM and 9 PM.</p>`;
+      buyNowBtn.style.display = "none";
+    } else {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+      if (cart.length === 0) {
+        cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+        buyNowBtn.disabled = true;
+      } else {
+        let total = 0;
+        let html = "<ul>";
+        cart.forEach(item => {
+          total += item.price;
+          html += `<li>${item.name} - ₹${item.price}</li>`;
+        });
+        html += `</ul><p><strong>Total: ₹${total}</strong></p>`;
+        cartContainer.innerHTML = html;
+      }
+    }
+
+    function placeOrder() {
+      const address = prompt("Enter your delivery address:");
+      const phone = prompt("Enter your contact number:");
+
+      if (!address || !phone) {
+        alert("Order cancelled. Address and phone are required.");
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const summary = cart.map(i => `${i.name} - ₹${i.price}`).join("%0A");
+      const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+      const msg = 
+        `*New Order*%0A` +
+        `*Client Phone:* ${phone}%0A` +
+        `*Address:* ${address}%0A%0A` +
+        `*Items Ordered:*%0A${summary}%0A%0A` +
+        `*Total:* ₹${total}`;
+
+      const storeNumber = "917743058943";
+      const url = `https://wa.me/${storeNumber}?text=${msg}`;
+      window.open(url, '_blank');
+
+      localStorage.removeItem("cart");
+
+      cartContainer.style.display = "none";
+      buyNowBtn.style.display = "none";
+
+      orderConfirmation.style.display = "flex";
+      orderConfirmation.innerHTML = `
+        <div>
+          Order delivered within 15 min. Congratulations!
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
