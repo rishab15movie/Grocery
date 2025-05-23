@@ -114,31 +114,28 @@
       }
 
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const summary = cart.map(i => `${i.name} - ₹${i.price}`).join("%0A");
+      const summary = cart.map(i => `${i.name} - ₹${i.price}`).join("\n");
       const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-      const msg = 
-        `*New Order*%0A` +
-        `*Client Phone:* ${phone}%0A` +
-        `*Address:* ${address}%0A%0A` +
-        `*Items Ordered:*%0A${summary}%0A%0A` +
+      const msg =
+        `*New Order*\n` +
+        `*Client Phone:* ${phone}\n` +
+        `*Address:* ${address}\n\n` +
+        `*Items Ordered:*\n${summary}\n\n` +
         `*Total:* ₹${total}`;
 
       const storeNumber = "917743058943";
-      const url = `https://wa.me/${storeNumber}?text=${msg}`;
+      const url = `https://wa.me/${storeNumber}?text=${encodeURIComponent(msg)}`;
+
+      // Open WhatsApp before UI changes
       window.open(url, '_blank');
 
+      // Clear cart and show confirmation
       localStorage.removeItem("cart");
-
       cartContainer.style.display = "none";
       buyNowBtn.style.display = "none";
-
       orderConfirmation.style.display = "flex";
-      orderConfirmation.innerHTML = `
-        <div>
-          Order delivered within 15 min. Congratulations!
-        </div>
-      `;
+      orderConfirmation.innerHTML = `<div>Order delivered within 15 min. Congratulations!</div>`;
     }
   </script>
 </body>
